@@ -16,7 +16,7 @@
   (utils/save-string-to-file out (graphql/gen ins)))
 
 (defn umlaut
-  "Manage a umlaut-based application"
+  "Manage a umlaut-based application."
   {:help-arglists '([dot graphql lacinia] [input-files] [output-file-or-path])}
   [project generator & args]
   (case generator
