@@ -4,6 +4,7 @@
     [clojure.string :as str]
     [umlaut.generators.lacinia :as lacinia]
     [umlaut.generators.dot :as dot]
+    [umlaut.generators.spec :as spec]
     [umlaut.generators.graphql :as graphql]
     [umlaut.core :as core]
     [umlaut.utils :as utils]))
@@ -30,6 +31,16 @@
               (utils/save-dotstring-to-image (join-path out (str key ".png")) value))
       {} (seq (dot/gen-by-group umlaut)))))
 
+(defn- process-spec [ins args]
+  (let [out (first args)
+        spec-package (second args)
+        custom-validators-filepath (nth args 2)
+        id-namespace (nth args 3)
+        specs (spec/gen spec-package custom-validators-filepath id-namespace ins)]
+    (doseq [[k v] specs]
+      (let [filename (clojure.string/replace k #"-" "_")]
+        (utils/save-string-to-file (join-path out (str filename ".clj")) v)))))
+
 (defn- process-lacinia [ins out]
   (utils/save-map-to-file out (lacinia/gen ins)))
 
@@ -40,16 +51,19 @@
   "Umlaut plugin to interact with umlaut generators.
 
   Usage:
-    - All generators, besides dot, expect a input folder and a output file.
-    - dot generator expects an output folder, since it can output several files.
+    - lein umlaut dot [umlaut-files-folder] [output-folder]
+    - lein umlaut graphql [umlaut-files-folder] [output-file]
+    - lein umlaut lacinia [umlaut-files-folder] [output-file]
+    - lein umlaut spec [umlaut-files-folder] [output-folder] [spec-package] [custom-validators-filepath] [id-namespace]
 
   All files ending with .umlaut inside the input folder will be considered"
-  {:help-arglists '([dot graphql lacinia] [input-folder] [output-file-or-path])}
   [project generator & args]
-  (when (not= (count args) 2)
+  (when (and (not= (count args) 2) (not= (count args) 5))
     (throw (Exception. "Invalid number of arguments, please run: lein help umlaut")))
   (case generator
     "dot" (process-dot (get-umlaut-files (first args)) (last args))
     "lacinia" (process-lacinia (get-umlaut-files (first args)) (last args))
     "graphql" (process-graphql (get-umlaut-files (first args)) (last args))
+    "spec" (process-spec (get-umlaut-files (first args)) (rest args))
     (leiningen.core.main/warn "Invalid generator, please run: lein help umlaut")))
+
