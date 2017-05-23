@@ -1,6 +1,6 @@
 # lein-umlaut
 
-CLI for umlaut.
+CLI for umlaut. Please read `lein help umlaut`.
 
 ## Usage
 
@@ -8,9 +8,9 @@ Put `[lein-umlaut "0.1.0-SNAPSHOT"]` into the `:plugins` vector of your `project
 
 Usage examples:
 ```
-lein umlaut graphql in.umlaut in2.umlaut out.graphql
-lein umlaut dot in.umlaut in2.umlaut all.png
-lein umlaut lacinia in.umlaut in2.umlaut lacinia.edn
+lein umlaut graphql ./schemas out.graphql
+lein umlaut dot ./schemas ./diagrams
+lein umlaut lacinia ./schemas lacinia.edn
 ```
 
 ## Help?
