@@ -29,8 +29,10 @@
 (defn- process-dot [ins out]
   (let [umlaut (core/main ins)]
     (utils/save-dotstring-to-image (join-path out "all.png") (dot/gen-all umlaut))
+    (utils/save-string-to-file (join-path out "all.dot") (dot/gen-all umlaut))
     (reduce (fn [acc [key value]]
-              (utils/save-dotstring-to-image (join-path out (str key ".png")) value))
+              (utils/save-dotstring-to-image (join-path out (str key ".png")) value)
+              (utils/save-string-to-file (join-path out (str key ".dot")) value))
       {} (seq (dot/gen-by-group umlaut)))))
 
 (defn- process-spec [ins args]
