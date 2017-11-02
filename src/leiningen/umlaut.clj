@@ -49,7 +49,7 @@
 (defn- process-graphql [ins out]
   (utils/save-string-to-file out (graphql/gen ins)))
 
-(defn umlaut
+(defn ^:no-project-needed umlaut
   "Umlaut plugin to interact with umlaut generators.
 
   Usage:
