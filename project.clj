@@ -1,4 +1,4 @@
-(defproject lein-umlaut "0.1.4"
+(defproject lein-umlaut "0.1.5"
   :description "CLI for umlaut"
   :url "https://github.com/workco/lein-umlaut"
   :dependencies [[org.clojure/clojure "1.8.0"]
