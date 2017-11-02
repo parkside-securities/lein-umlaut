@@ -10,8 +10,6 @@
     [umlaut.utils :as utils]))
 (use '[clojure.pprint :only [pprint]])
 
-(def ^:private version (-> "project.clj" slurp read-string (nth 2)))
-
 (defn- join-path [out filename]
   "Join two paths"
   (-> out
@@ -62,7 +60,6 @@
 
   All files ending with .umlaut inside the input folder will be considered"
   [project generator & args]
-  (println (str "Umlaut-plugin version: " version))
   (when (and (not= (count args) 2) (not= (count args) 5))
     (throw (Exception. "Invalid number of arguments, please run: lein help umlaut")))
   (case generator
@@ -71,4 +68,3 @@
     "graphql" (process-graphql (get-umlaut-files (first args)) (last args))
     "spec" (process-spec (get-umlaut-files (first args)) (rest args))
     (leiningen.core.main/warn "Invalid generator, please run: lein help umlaut")))
-
