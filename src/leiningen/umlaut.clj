@@ -1,14 +1,13 @@
 (ns leiningen.umlaut
-  (:require
-    [clojure.java.io :as io]
-    [clojure.string :as str]
-    [umlaut.generators.lacinia :as lacinia]
-    [umlaut.generators.dot :as dot]
-    [umlaut.generators.spec :as spec]
-    [umlaut.generators.graphql :as graphql]
-    [umlaut.core :as core]
-    [umlaut.utils :as utils]))
-(use '[clojure.pprint :only [pprint]])
+  (:require [clojure.java.io :as io]
+            [clojure.string :as str]
+            [umlaut.core :as core]
+            [umlaut.generators.datomic :as datomic]
+            [umlaut.generators.dot :as dot]
+            [umlaut.generators.graphql :as graphql]
+            [umlaut.generators.lacinia :as lacinia]
+            [umlaut.generators.spec :as spec]
+            [umlaut.utils :as utils]))
 
 (defn- join-path [out filename]
   "Join two paths"
@@ -43,6 +42,9 @@
       (let [filename (clojure.string/replace k #"-" "_")]
         (utils/save-string-to-file (join-path out (str filename ".clj")) v)))))
 
+(defn- process-datomic [ins out]
+  (utils/save-map-to-file out (datomic/gen ins)))
+
 (defn- process-lacinia [ins out]
   (utils/save-map-to-file out (lacinia/gen ins)))
 
@@ -54,17 +56,20 @@
 
   Usage:
     - lein umlaut dot [umlaut-files-folder] [output-folder]
-    - lein umlaut graphql [umlaut-files-folder] [output-file]
+    - lein umlaut datomic [umlaut-files-folder] [output-folder]
     - lein umlaut lacinia [umlaut-files-folder] [output-file]
+    - lein umlaut graphql [umlaut-files-folder] [output-file]
     - lein umlaut spec [umlaut-files-folder] [output-folder] [spec-package] [custom-validators-filepath] [id-namespace]
 
   All files ending with .umlaut inside the input folder will be considered"
   [project generator & args]
   (when (and (not= (count args) 2) (not= (count args) 5))
     (throw (Exception. "Invalid number of arguments, please run: lein help umlaut")))
-  (case generator
-    "dot" (process-dot (get-umlaut-files (first args)) (last args))
-    "lacinia" (process-lacinia (get-umlaut-files (first args)) (last args))
-    "graphql" (process-graphql (get-umlaut-files (first args)) (last args))
-    "spec" (process-spec (get-umlaut-files (first args)) (rest args))
-    (leiningen.core.main/warn "Invalid generator, please run: lein help umlaut")))
+  (let [umlaut-files (-> args first get-umlaut-files)]
+    (case generator
+      "dot"     (process-dot umlaut-files (last args))
+      "datomic" (process-datomic umlaut-files (last args))
+      "lacinia" (process-lacinia umlaut-files (last args))
+      "graphql" (process-graphql umlaut-files (last args))
+      "spec"    (process-spec umlaut-files (rest args))
+      (leiningen.core.main/warn "Invalid generator, please run: lein help umlaut"))))
